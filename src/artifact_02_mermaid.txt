@@ -1,0 +1,21 @@
+flowchart TD
+    subgraph On-Chain Solana Runtime
+        A[Sponsor / Dean] -->|1. initialize_grant| B(Grant PDA Account)
+        A -->|2. fund_grant SOL| C(Grant Vault PDA)
+        D[Student Researcher] -->|3. submit_milestone IPFS Hash| E(Milestone PDA)
+        A -->|4. approve_milestone| F{Verification Logic}
+        F -->|Checks Pass| G[Transfer Lamports from Vault to Student]
+        F -->|Emit Event| H[MilestoneApproved Event]
+    end
+
+    subgraph Off-Chain Enterprise Listener Daemon
+        H -.->|WebSocket onLogs Subscription| I[Event Orchestrator Node.js]
+        I -->|Parse Event Payload| J{Notification Dispatcher}
+    end
+
+    subgraph External Enterprise Endpoints
+        J -->|POST payload| K[Resend Email API]
+        J -->|POST JSON Webhook| L[Discord / Slack Committee Channel]
+        K --> M[(Faculty & Student Mailboxes)]
+        L --> N[(University Grant Council)]
+    end

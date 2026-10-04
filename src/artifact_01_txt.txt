@@ -1,0 +1,25 @@
++-----------------------------+
+                      |   University Sponsor / DAO  |
+                      +--------------+--------------+
+                                     |  1. Escrows Capital (SOL/USDC)
+                                     v
++------------------------------------------------------------------------+
+|                      AEGIS-EDU SOLANA CORE PROTOCOL                    |
+|                                                                        |
+|  [Grant PDA Escrow] ---> [Milestone PDA Verification] ---> [Payout PDA]|
+|                                                                        |
++------------------------------------+-----------------------------------+
+                                     |
+                                     |  2. Emits Anchor Program Event
+                                     v
+                      +-----------------------------+
+                      |  Enterprise Event Relayer   |
+                      +--------------+--------------+
+                                     |
+                     +---------------+---------------+
+                     |                               |
+                     v                               v
+          +--------------------+           +-------------------+
+          |  Resend API (Email)|           |  Discord / Slack  |
+          |  Dean & Student    |           |  Audit Channel    |
+          +--------------------+           +-------------------+
