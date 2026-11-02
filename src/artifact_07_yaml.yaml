@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  scholar-stream-listener:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kneu_scholar_stream_daemon
+    restart: always
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=KNEU111111111111111111111111111111111111111
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - NOTIFICATION_EMAIL=grants@kneu.edu.ua
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

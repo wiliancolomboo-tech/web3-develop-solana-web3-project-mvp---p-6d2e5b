@@ -1,0 +1,5 @@
+1/ Academic prize payouts take 60+ days & student credentials stay trapped in paper PDFs. 
+
+Not anymore. 
+
+We built @ScholarStake for the #KNEU UNIVibeathon: An autonomous, milestone-based bounty escrow & credentialing engine powered by @solana. 🎓⚡

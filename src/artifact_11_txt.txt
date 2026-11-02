@@ -1,0 +1,6 @@
+3/ Empowering the next generation of Ukrainian student builders with transparent, verifiable proof-of-work.
+
+Check out our open-source repo & live Devnet deployment!
+GitHub: https://github.com/kneu-vibeathon/scholarstake
+
+Big thanks to KNEU & @solana ecosystem! 🚀🇺🇦

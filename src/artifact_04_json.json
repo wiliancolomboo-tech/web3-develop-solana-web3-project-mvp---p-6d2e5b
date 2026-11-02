@@ -1,0 +1,22 @@
+{
+  "name": "campus-cred-enterprise-agent",
+  "version": "1.0.0",
+  "description": "Enterprise event listener and automated notification relayer for CampusCred",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.3",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0",
+    "resend": "^3.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/node-fetch": "^2.6.11",
+    "typescript": "^5.5.4"
+  }
+}

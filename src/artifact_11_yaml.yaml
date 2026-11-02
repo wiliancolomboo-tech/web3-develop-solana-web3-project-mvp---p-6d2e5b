@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  eduvibe-daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kneu_eduvibe_relay
+    restart: always
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=EduVibE1111111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SUPERVISOR_NOTIFY_EMAIL=vibeathon-admin@kneu.edu.ua
+      - DISCORD_OR_SLACK_WEBHOOK=${DISCORD_OR_SLACK_WEBHOOK}
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'console.log(process.uptime() > 0 ? 0 : 1)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

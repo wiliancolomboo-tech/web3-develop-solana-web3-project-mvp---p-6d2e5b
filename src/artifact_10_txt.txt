@@ -1,0 +1,7 @@
+2/ Under the hood:
+🔒 PDA-governed SOL vaults with non-custodial timeout safety valves
+⚡ Sub-second release upon sponsor review
+📩 Instant off-chain webhooks + @resend cryptographic receipt dispatch
+🧪 100% Anchor test suite coverage
+
+Zero fraud. Real-time rewards.

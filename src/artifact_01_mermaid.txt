@@ -1,0 +1,25 @@
+flowchart TD
+    subgraph University Sponsor / Evaluator
+        A[Sponsor / KNEU Faculty Admin] -->|1. Initialize Grant Vault & Milestones| B[Solana Program: CampusCred]
+        A -->|4. Submit Milestone Attestation Proof| B
+    end
+
+    subgraph Student / Vibecoder
+        C[Student Contributor] -->|2. Register Profile & Stake Commitment| B
+        C -->|3. Submit Deliverable URI & Git Hash| B
+        B -->|6. Instant Settlement: Release Escrowed SOL| C
+        B -->|7. Mint On-Chain Non-Transferable Merit Badge| C
+    end
+
+    subgraph On-Chain State Solana Runtime
+        B --> D[(Grant PDA Account: Vault Balance & Milestones)]
+        B --> E[(Student Attestation PDA: Non-Transferable SBT)]
+    end
+
+    subgraph Enterprise Automation & Notification Layer
+        B -->|5. Program Event Emission| F[Solana WebSocket Log Subscriber]
+        F --> G[CampusCred Enterprise Automation Agent]
+        G -->|REST API Dispatch| H[Resend Email Delivery API: Dean & Student Alert]
+        G -->|Webhook Webhook POST| I[University Discord/Slack Notification Channel]
+        G -->|Telemetry Push| J[Prometheus / OpenTelemetry Health Metric]
+    end

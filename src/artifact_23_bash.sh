@@ -1,0 +1,1 @@
+solana account <VAULT_PDA_ADDRESS> --output json

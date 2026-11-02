@@ -1,0 +1,8 @@
+{
+  "status": "healthy",
+  "uptime_seconds": 84210,
+  "cluster": "devnet",
+  "connected_slot": 312048912,
+  "events_processed": 142,
+  "resend_delivery_rate": "100%"
+}

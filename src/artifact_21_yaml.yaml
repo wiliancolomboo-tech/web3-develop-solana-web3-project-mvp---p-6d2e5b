@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  scholarstream-relay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - SOLANA_WS_URL=wss://api.devnet.solana.com
+      - PROGRAM_ID=SchStrm111111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - ADMIN_EMAIL=treasury@kneu.edu.ua
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

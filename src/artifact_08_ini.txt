@@ -1,0 +1,7 @@
+PROGRAM_ID=SchLRv1BEg19Ym3yQYqA2ZJjUj2rFwJ8pM1XyNzEwKL
+SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_WS_URL=wss://api.devnet.solana.com
+RESEND_API_KEY=re_1234567890abcdef
+SLACK_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+FINANCE_NOTIFICATION_EMAIL=grants-audit@kneu.edu.ua
+PORT=8080

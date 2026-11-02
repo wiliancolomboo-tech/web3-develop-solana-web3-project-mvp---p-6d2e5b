@@ -1,0 +1,13 @@
+programs/scholar-stream/
+├── Cargo.toml
+└── src/
+    ├── errors.rs
+    ├── events.rs
+    ├── instructions/
+    │   ├── approve_milestone.rs
+    │   ├── claim_milestone.rs
+    │   ├── initialize_grant.rs
+    │   ├── mod.rs
+    │   └── submit_milestone.rs
+    ├── lib.rs
+    └── state.rs

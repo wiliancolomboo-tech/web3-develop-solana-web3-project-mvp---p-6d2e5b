@@ -1,0 +1,32 @@
+FROM node:20-slim AS builder
+
+WORKDIR /usr/src/app
+
+# Install native compilation dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY orchestrator/package*.json ./
+RUN npm ci
+
+COPY orchestrator/tsconfig.json ./
+COPY orchestrator/src ./src
+RUN npm run build
+
+# Production runtime stage
+FROM node:20-slim
+
+WORKDIR /app
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/package.json ./
+
+ENV NODE_ENV=production
+USER node
+
+EXPOSE 8080
+CMD ["node", "dist/cli.js", "listen"]

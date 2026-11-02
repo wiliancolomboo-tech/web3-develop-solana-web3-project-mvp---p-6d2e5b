@@ -1,0 +1,8 @@
+How does it work?
+
+1️⃣ Donors & DAOs seed programmatic PDA vaults.
+2️⃣ Students submit GitHub/research proof hashes directly on-chain.
+3️⃣ University oracles attest completion in 400ms.
+4️⃣ Automated releases stream funds directly into student wallets, triggering instant @resend emails & Discord audits.
+
+Zero paperwork. 100% cryptographic proof.

@@ -1,0 +1,8 @@
+⚡ How does ScholarStream work under the hood?
+
+1️⃣ PDA Escrow Vaults securely hold university endowment capital
+2️⃣ Students submit SHA-256 milestone deliverable proofs
+3️⃣ Faculty verifies via Ed25519 multi-sig approvals
+4️⃣ Automated CPI instant payouts + @resend notifications
+
+Zero custodial risk. Zero manual paperwork. 🔐

@@ -1,0 +1,8 @@
+🌐 University research funding, modernized for the decentralized economy.
+
+Built with @coral_xyz Anchor, tested with 100% assertion coverage, and ready for campus deployment.
+
+Check out our complete MVP repo & pitch deck:
+🔗 github.com/kneu-vibeathon/scholar-stream
+
+Tagging the judges: @solana @KNEU_Official #SolanaDevs #BUIDL

@@ -1,21 +1,23 @@
 flowchart TD
-    subgraph On-Chain Solana Runtime
-        A[Sponsor / Dean] -->|1. initialize_grant| B(Grant PDA Account)
-        A -->|2. fund_grant SOL| C(Grant Vault PDA)
-        D[Student Researcher] -->|3. submit_milestone IPFS Hash| E(Milestone PDA)
-        A -->|4. approve_milestone| F{Verification Logic}
-        F -->|Checks Pass| G[Transfer Lamports from Vault to Student]
-        F -->|Emit Event| H[MilestoneApproved Event]
+    subgraph Client & Identity Layer
+        A[Sponsor / KNEU Faculty Admin] -->|1. Initialize Pool & Escrow| B[EduStream Program ID: edu5...]
+        C[Student / Scholar] -->|2. Register Scholar Profile| B
+        C -->|3. Submit Deliverable SHA256 + IPFS CID| B
     end
 
-    subgraph Off-Chain Enterprise Listener Daemon
-        H -.->|WebSocket onLogs Subscription| I[Event Orchestrator Node.js]
-        I -->|Parse Event Payload| J{Notification Dispatcher}
+    subgraph Solana Runtime Engine
+        B --> D[Pool PDA: seeds=['pool', authority, pool_id]]
+        B --> E[Scholar PDA: seeds=['scholar', pool_pubkey, scholar_pubkey]]
+        B --> F[Milestone Vault PDA: seeds=['vault', pool_pubkey]]
+        
+        A -->|4. Evaluate & Approve Milestone| B
+        B -->|5. Release Funds from Vault PDA| G[Scholar Wallet]
+        B -->|6. Emit MilestoneCompleted Event| H[Solana Gossip / RPC WebSocket]
     end
 
-    subgraph External Enterprise Endpoints
-        J -->|POST payload| K[Resend Email API]
-        J -->|POST JSON Webhook| L[Discord / Slack Committee Channel]
-        K --> M[(Faculty & Student Mailboxes)]
-        L --> N[(University Grant Council)]
+    subgraph Off-Chain Enterprise Automation Daemon
+        H -->|WebSocket Log Stream| I[EduStream Event Relayer Node]
+        I -->|Parse Event Proof & Tx Hash| J{Notification Engine}
+        J -->|Enterprise Webhook| K[University Discord / Slack Channels]
+        J -->|REST Dispatch| L[Resend Transactional Email Engine]
     end

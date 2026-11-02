@@ -1,25 +1,15 @@
-+-----------------------------+
-                      |   University Sponsor / DAO  |
-                      +--------------+--------------+
-                                     |  1. Escrows Capital (SOL/USDC)
-                                     v
-+------------------------------------------------------------------------+
-|                      AEGIS-EDU SOLANA CORE PROTOCOL                    |
-|                                                                        |
-|  [Grant PDA Escrow] ---> [Milestone PDA Verification] ---> [Payout PDA]|
-|                                                                        |
-+------------------------------------+-----------------------------------+
-                                     |
-                                     |  2. Emits Anchor Program Event
-                                     v
-                      +-----------------------------+
-                      |  Enterprise Event Relayer   |
-                      +--------------+--------------+
-                                     |
-                     +---------------+---------------+
-                     |                               |
-                     v                               v
-          +--------------------+           +-------------------+
-          |  Resend API (Email)|           |  Discord / Slack  |
-          |  Dean & Student    |           |  Audit Channel    |
-          +--------------------+           +-------------------+
+[ Sponsor / Donor / University ]
+               │
+               ▼  Deposits SOL / USDC to Program Vault PDA
+  ┌────────────────────────────────────────────────────────┐
+  │         EduStream Core Program (Anchor / Solana)       │
+  │  - Milestone State Machine                             │
+  │  - Deterministic PDA Vaults                            │
+  │  - Faculty Multi-Signer Attestation Matrix             │
+  └────────────────────────────────────────────────────────┘
+               │
+               ▼  Sub-Second (<400ms) Cryptographic Settlement
+ [ Student Researcher / Scholar / Hacker ]
+               │
+               ▼  Real-Time Enterprise Event Bus
+ [ University Slack/Discord Alerts + Resend Transactional Receipts ]

@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  campusflow-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campusflow-automation-worker
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=CPUsP84W9k2vQ9f2n6hR4K8yT7B1gUvGk6yK3w2m5zVw
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_SENDER_EMAIL=grants@campusflow.kneu.edu.ua
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3

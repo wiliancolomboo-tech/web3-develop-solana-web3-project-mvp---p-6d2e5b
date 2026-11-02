@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  scholarstream-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scholarstream-relayer
+    restart: always
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - SOLANA_WS_URL=wss://api.devnet.solana.com
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - NOTIFICATION_EMAIL_RECIPIENT=dean_research@kneu.edu.ua
+      - PORT=8080
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

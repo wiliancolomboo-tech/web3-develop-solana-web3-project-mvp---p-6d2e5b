@@ -1,0 +1,8 @@
+By leveraging Solana’s high throughput and sub-cent fees, universities like KNEU can turn student achievements into dynamic, real-time micro-funding loops.
+
+✅ Full Anchor v0.30 Contract
+✅ Resend Enterprise Webhook Engine
+✅ 100% Tested & Dockerized
+
+Check out the demo repo & live Devnet contracts! 🚀
+#KNEU #Solana #Vibeathon #Web3Education

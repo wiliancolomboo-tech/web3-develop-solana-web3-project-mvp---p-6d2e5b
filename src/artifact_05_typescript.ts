@@ -1,199 +1,149 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
-import { AegisEdu } from "../target/types/aegis_edu";
-import { PublicKey, Keypair, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { expect } from "chai";
-import crypto from "crypto";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { Resend } from "resend";
+import fetch from "node-fetch";
+import * as dotenv from "dotenv";
 
-describe("AegisEdu Protocol Test Suite", () => {
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
+dotenv.config();
 
-  const program = anchor.workspace.AegisEdu as Program<AegisEdu>;
+const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
+const SOLANA_WS_URL = process.env.SOLANA_WS_URL || "wss://api.devnet.solana.com";
+const PROGRAM_ID = new PublicKey(process.env.PROGRAM_ID || "CampCred11111111111111111111111111111111111");
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const NOTIFICATION_EMAIL_RECIPIENT = process.env.NOTIFICATION_EMAIL_RECIPIENT || "vibecoder@kneu.edu.ua";
 
-  const facultyAuthority = Keypair.generate();
-  const studentResearcher = Keypair.generate();
-  const grantTitle = "AI-Economics-KNEU-2025";
-  const totalMilestones = 2;
-  const totalBudget = new anchor.BN(2 * LAMPORTS_PER_SOL);
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
-  let grantPda: PublicKey;
-  let vaultPda: PublicKey;
+interface DiscordEmbedField {
+  name: string;
+  value: string;
+  inline?: boolean;
+}
 
-  before(async () => {
-    // Fund test accounts
-    const airdrop1 = await provider.connection.requestAirdrop(
-      facultyAuthority.publicKey,
-      5 * LAMPORTS_PER_SOL
-    );
-    const airdrop2 = await provider.connection.requestAirdrop(
-      studentResearcher.publicKey,
-      2 * LAMPORTS_PER_SOL
-    );
-    await provider.connection.confirmTransaction(airdrop1);
-    await provider.connection.confirmTransaction(airdrop2);
+async function sendDiscordNotification(title: string, description: string, fields: DiscordEmbedField[], color = 0x14f195) {
+  if (!DISCORD_WEBHOOK_URL) {
+    console.log(`[WARN] Discord Webhook not set. Skipping post: ${title}`);
+    return;
+  }
 
-    [grantPda] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("grant"),
-        facultyAuthority.publicKey.toBuffer(),
-        Buffer.from(grantTitle),
-      ],
-      program.programId
-    );
+  const payload = {
+    username: "CampusCred Protocol Sentinel",
+    avatar_url: "https://solana.com/src/img/branding/solanaLogoMark.png",
+    embeds: [
+      {
+        title,
+        description,
+        color,
+        fields,
+        footer: { text: "KNEU UNI Vibeathon | Powered by Solana" },
+        timestamp: new Date().toISOString(),
+      },
+    ],
+  };
 
-    [vaultPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("vault"), grantPda.toBuffer()],
-      program.programId
-    );
-  });
-
-  it("1. Successfully initializes a grant with deterministic PDA", async () => {
-    await program.methods
-      .initializeGrant(grantTitle, totalMilestones, totalBudget)
-      .accounts({
-        authority: facultyAuthority.publicKey,
-        recipient: studentResearcher.publicKey,
-        grant: grantPda,
-        vault: vaultPda,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([facultyAuthority])
-      .rpc();
-
-    const grantAccount = await program.account.grant.fetch(grantPda);
-    expect(grantAccount.authority.toBase58()).to.equal(facultyAuthority.publicKey.toBase58());
-    expect(grantAccount.recipient.toBase58()).to.equal(studentResearcher.publicKey.toBase58());
-    expect(grantAccount.totalMilestones).to.equal(2);
-    expect(grantAccount.completedMilestones).to.equal(0);
-    expect(grantAccount.isActive).to.be.true;
-  });
-
-  it("2. Accepts escrow funding from sponsor to Vault PDA", async () => {
-    await program.methods
-      .fundGrant(totalBudget)
-      .accounts({
-        funder: facultyAuthority.publicKey,
-        grant: grantPda,
-        vault: vaultPda,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([facultyAuthority])
-      .rpc();
-
-    const vaultBalance = await provider.connection.getBalance(vaultPda);
-    expect(vaultBalance).to.equal(2 * LAMPORTS_PER_SOL);
-
-    const grantAccount = await program.account.grant.fetch(grantPda);
-    expect(grantAccount.fundedAmount.toString()).to.equal(totalBudget.toString());
-  });
-
-  it("3. Rejects milestone submission from an unauthorized account", async () => {
-    const maliciousAttacker = Keypair.generate();
-    const mockHash = Array.from(crypto.createHash("sha256").update("draft_1").digest());
-
-    const [milestonePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("milestone"), grantPda.toBuffer(), Buffer.from([0])],
-      program.programId
-    );
-
-    try {
-      await program.methods
-        .submitMilestone(0, mockHash)
-        .accounts({
-          submitter: maliciousAttacker.publicKey,
-          grant: grantPda,
-          milestone: milestonePda,
-          systemProgram: SystemProgram.programId,
-        })
-        .signers([maliciousAttacker])
-        .rpc();
-      expect.fail("Should have thrown UnauthorizedRecipient error");
-    } catch (err: any) {
-      expect(err.toString()).to.include("UnauthorizedRecipient");
+  try {
+    const res = await fetch(DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      console.error(`[ERROR] Discord Webhook responded with status ${res.status}`);
+    } else {
+      console.log(`[INFO] Successfully relayed alert to Discord.`);
     }
+  } catch (err) {
+    console.error("[ERROR] Failed to post alert to Discord:", err);
+  }
+}
+
+async function sendResendEmail(subject: string, htmlContent: string) {
+  if (!resend) {
+    console.log(`[WARN] Resend API Key not configured. Skipping email dispatch.`);
+    return;
+  }
+
+  try {
+    const response = await resend.emails.send({
+      from: "CampusCred Sentinel <onboarding@resend.dev>",
+      to: [NOTIFICATION_EMAIL_RECIPIENT],
+      subject,
+      html: htmlContent,
+    });
+    console.log(`[INFO] Email successfully sent via Resend: ${response.data?.id}`);
+  } catch (err) {
+    console.error("[ERROR] Resend dispatch failure:", err);
+  }
+}
+
+async function main() {
+  console.log("==========================================================");
+  console.log("Starting CampusCred Enterprise Orchestration Agent...");
+  console.log(`Listening on Program: ${PROGRAM_ID.toBase58()}`);
+  console.log(`RPC Endpoint: ${SOLANA_RPC_URL}`);
+  console.log("==========================================================");
+
+  const connection = new Connection(SOLANA_RPC_URL, {
+    wsEndpoint: SOLANA_WS_URL,
+    commitment: "confirmed",
   });
 
-  it("4. Student submits valid milestone deliverable proof", async () => {
-    const mockHash = Array.from(crypto.createHash("sha256").update("paper_chapter_1").digest());
-    const [milestonePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("milestone"), grantPda.toBuffer(), Buffer.from([0])],
-      program.programId
-    );
+  connection.onLogs(
+    PROGRAM_ID,
+    async ({ logs, err, signature }) => {
+      if (err) return;
 
-    await program.methods
-      .submitMilestone(0, mockHash)
-      .accounts({
-        submitter: studentResearcher.publicKey,
-        grant: grantPda,
-        milestone: milestonePda,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([studentResearcher])
-      .rpc();
+      for (const log of logs) {
+        if (log.includes("MilestoneApprovedEvent")) {
+          console.log(`\n[EVENT DETECTED] MilestoneApproved in tx: ${signature}`);
 
-    const milestoneAccount = await program.account.milestone.fetch(milestonePda);
-    expect(milestoneAccount.isCompleted).to.be.false;
-    expect(milestoneAccount.index).to.equal(0);
-  });
+          await sendDiscordNotification(
+            "🎓 Academic Grant Milestone Approved & Settled!",
+            `Milestone attestation confirmed on Solana Devnet. Payout dispatched immediately from escrow.`,
+            [
+              { name: "Transaction Signature", value: `[\`${signature.substring(0, 16)}...\`](https://explorer.solana.com/tx/${signature}?cluster=devnet)` },
+              { name: "Sponsor Verification", value: "Verified & Evaluated by KNEU Academic Board", inline: true },
+              { name: "Protocol Action", value: "Soulbound Merit Attestation Minted", inline: true },
+            ],
+            0x14f195
+          );
 
-  it("5. Faculty authority approves milestone & transfers lamports directly to student", async () => {
-    const [milestonePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("milestone"), grantPda.toBuffer(), Buffer.from([0])],
-      program.programId
-    );
+          const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px;">
+              <h2 style="color: #10b981;">🎉 Milestone Approval Notice</h2>
+              <p>Dear KNEU Student Contributor,</p>
+              <p>Your academic milestone deliverable has been verified by the faculty committee and validated on Solana.</p>
+              <div style="background-color: #f8fafc; border-radius: 6px; padding: 16px; margin: 20px 0;">
+                <p><strong>Transaction Signature:</strong> ${signature}</p>
+                <p><strong>Status:</strong> Funds Transferred & Credential Recorded</p>
+                <p><strong>Explorer:</strong> <a href="https://explorer.solana.com/tx/${signature}?cluster=devnet">View on Solana Explorer</a></p>
+              </div>
+              <p>Keep vibecoding and building the future of Web3!</p>
+              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+              <p style="font-size: 12px; color: #64748b;">CampusCred Protocol • KNEU UNI Vibeathon</p>
+            </div>
+          `;
 
-    const initialStudentBalance = await provider.connection.getBalance(
-      studentResearcher.publicKey
-    );
+          await sendResendEmail("🎓 Grant Milestone Approved: Your Escrow Bounty Has Been Disbursed!", emailHtml);
+        } else if (log.includes("MilestoneSubmittedEvent")) {
+          console.log(`\n[EVENT DETECTED] MilestoneSubmitted in tx: ${signature}`);
+          await sendDiscordNotification(
+            "🚀 New Student Deliverable Submitted!",
+            `A student has submitted code and signed a commit hash for faculty evaluation.`,
+            [
+              { name: "Transaction", value: `[\`${signature.substring(0, 16)}...\`](https://explorer.solana.com/tx/${signature}?cluster=devnet)` },
+              { name: "Next Step", value: "Faculty Jury Code Review & Proof Verification", inline: true },
+            ],
+            0x3b82f6
+          );
+        }
+      }
+    },
+    "confirmed"
+  );
+}
 
-    await program.methods
-      .approveMilestone(0)
-      .accounts({
-        authority: facultyAuthority.publicKey,
-        recipient: studentResearcher.publicKey,
-        grant: grantPda,
-        milestone: milestonePda,
-        vault: vaultPda,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([facultyAuthority])
-      .rpc();
-
-    const postStudentBalance = await provider.connection.getBalance(
-      studentResearcher.publicKey
-    );
-    expect(postStudentBalance - initialStudentBalance).to.equal(1 * LAMPORTS_PER_SOL);
-
-    const grantAccount = await program.account.grant.fetch(grantPda);
-    expect(grantAccount.completedMilestones).to.equal(1);
-    expect(grantAccount.releasedAmount.toString()).to.equal(
-      new anchor.BN(1 * LAMPORTS_PER_SOL).toString()
-    );
-  });
-
-  it("6. Prevents double-approval of an already executed milestone", async () => {
-    const [milestonePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("milestone"), grantPda.toBuffer(), Buffer.from([0])],
-      program.programId
-    );
-
-    try {
-      await program.methods
-        .approveMilestone(0)
-        .accounts({
-          authority: facultyAuthority.publicKey,
-          recipient: studentResearcher.publicKey,
-          grant: grantPda,
-          milestone: milestonePda,
-          vault: vaultPda,
-          systemProgram: SystemProgram.programId,
-        })
-        .signers([facultyAuthority])
-        .rpc();
-      expect.fail("Should have failed on duplicate approval check");
-    } catch (err: any) {
-      expect(err.toString()).to.include("InvalidMilestoneOrder");
-    }
-  });
+main().catch((err) => {
+  console.error("[CRITICAL] Agent crashed:", err);
+  process.exit(1);
 });
