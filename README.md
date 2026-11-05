@@ -897,7 +897,7 @@ services:
       - SOLANA_WS_URL=wss://api.devnet.solana.com
       - PROGRAM_ID=CampCred11111111111111111111111111111111111
       - DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
-      - RESEND_API_KEY=re_mock_test_key_kneu_2025
+      - RESEND_API_KEY=re_test_000000000000000000000000
       - NOTIFICATION_EMAIL_RECIPIENT=dean_vibecoding@kneu.edu.ua
     healthcheck:
       test: ["CMD-SHELL", "node -e 'process.exit(0)'"]

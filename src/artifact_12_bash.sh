@@ -10,7 +10,7 @@ anchor deploy --provider.cluster devnet
 cat <<EOF > client/.env
 SOLANA_RPC_URL=https://api.devnet.solana.com
 PROGRAM_ID=$(solana address -k target/deploy/eduvibe_protocol-keypair.json)
-RESEND_API_KEY=re_live_enterprise_token
+RESEND_API_KEY=re_test_000000000000000000000000
 DISCORD_OR_SLACK_WEBHOOK=https://api.example.com/webhooks/alerts/placeholder
 SUPERVISOR_NOTIFY_EMAIL=faculty@kneu.edu.ua
 EOF
